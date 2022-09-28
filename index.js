@@ -1,34 +1,13 @@
-// GIVEN a command-line application that accepts user input
-// WHEN I start the application
-// THEN I am presented with the following options: view all departments, view all roles, view all employees, add a department, add a role, add an employee, and update an employee role
-
-// WHEN I choose to view all departments
-// THEN I am presented with a formatted table showing department names and department ids
-
-// WHEN I choose to view all roles
-// THEN I am presented with the job title, role id, the department that role belongs to, and the salary for that role
-
-// WHEN I choose to view all employees
-// THEN I am presented with a formatted table showing employee data, including employee ids, first names, last names, job titles, departments, salaries, and managers that the employees report to
-
-// WHEN I choose to add a department
-// THEN I am prompted to enter the name of the department and that department is added to the database
-
-// WHEN I choose to add a role
-// THEN I am prompted to enter the name, salary, and department for the role and that role is added to the database
-
-// WHEN I choose to add an employee
-// THEN I am prompted to enter the employee’s first name, last name, role, and manager, and that employee is added to the database
-
-// WHEN I choose to update an employee role
-// THEN I am prompted to select an employee to update and their new role and this information is updated in the database
-
 // Referencing code from Module 12 Mini Project
 
+// require packages
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
+
+// require custom module 
 const sqlQueries = require('./util/sql-queries');
 
+// define connection to MySQL database
 const connection = mysql.createConnection(
   {
       host: 'localhost',
@@ -39,6 +18,7 @@ const connection = mysql.createConnection(
   console.log('---------------------------------------------------\n| Connecting to the employee_tracker_db database. |\n---------------------------------------------------')
 );
 
+// Function to start connection, then call the startPrompt function
 function startConnection(){
   connection.connect(function(err) {
     if (err) throw err;
@@ -46,6 +26,7 @@ function startConnection(){
   });
 }
 
+// Function to end the connection
 function endConnection(){
   connection.end(function(err) {
     if (err) throw err;
@@ -53,6 +34,8 @@ function endConnection(){
   });
 }
 
+// Function to initiate an inquirer prompt where user chooses an option,
+// then runs the selectOption() function with the inquirer response as an argument
 function startPrompt() {
   inquirer
   .prompt({
@@ -60,20 +43,20 @@ function startPrompt() {
     type: 'list',
     message: 'Please select an option',
     choices: [
-      'View departments',
-      'View roles',
-      'View employees',
+      'View all departments',
+      'View all roles',
+      'View all employees',
       'View employees by manager',
       'View employees by department',
       'View budget by department',
-      'Add department',
-      'Add role',
-      'Add employee',
-      'Update employee role',
-      'Update employee manager',
-      'Delete department',
-      'Delete role',
-      'Delete employee',
+      'Add a department',
+      'Add a role',
+      'Add an employee',
+      'Update an employee role',
+      'Update an employee manager',
+      'Delete a department',
+      'Delete a role',
+      'Delete an employee',
       'Exit application'
     ]
   })
@@ -83,6 +66,7 @@ function startPrompt() {
   .catch((err) => console.error(err))
 }
 
+// Provides user an inquirer prompt and asks if they want to do select any other options
 const restartPrompt = function() {
   inquirer
   .prompt({
@@ -95,25 +79,30 @@ const restartPrompt = function() {
       ]
   }).then(function(response) {
       if(response.redo == 'Yes'){
+          // if yes, call the startPrompt() function again
           startPrompt();
       } else {
+          // if no, end connection
           endConnection();
       }
   })
   .catch((err) => console.error(err))
 }
 
+// Function that uses a switch statement to handle user input
+// If input not recognized, end the connection
+// Each case passes in the connection variable and the restartPrompt function as arguments for the multiple "select option" functions
 function selectOption(response) {
   switch (response.option) {
-      case 'View departments':
+      case 'View all departments':
           sqlQueries.viewDepartments(connection, restartPrompt);
           break;
 
-      case 'View roles':
+      case 'View all roles':
           sqlQueries.viewRoles(connection, restartPrompt);
           break;
 
-      case 'View employees':
+      case 'View all employees':
           sqlQueries.viewEmployees(connection, restartPrompt);
           break;
 
@@ -129,49 +118,57 @@ function selectOption(response) {
           sqlQueries.viewBudgetByDepartment(connection, restartPrompt);
           break;
       
-      case 'Add department':
+      case 'Add a department':
+          // Had to pass in callback function as argument for the viewDepartments function to work
           sqlQueries.addDepartment(connection, function() {
             sqlQueries.viewDepartments(connection, restartPrompt)
           });
           break;
 
-      case 'Add role':
+      case 'Add a role':
+          // Had to pass in callback function as argument for the viewRoles function to work
           sqlQueries.addRole(connection, function() {
             sqlQueries.viewRoles(connection, restartPrompt)
           });
           break;
 
-      case 'Add employee':
+      case 'Add an employee':
+          // Had to pass in callback function as argument for the viewEmployees function to work
           sqlQueries.addEmployee(connection, function() {
             sqlQueries.viewEmployees(connection, restartPrompt)
           });
           break;
 
-      case 'Update employee role':
+      case 'Update an employee role':
+          // Had to pass in callback function as argument for the viewEmployees function to work
           sqlQueries.updateEmployeeRole(connection, function() {
             sqlQueries.viewEmployees(connection, restartPrompt)
           });
           break;
 
-      case 'Update employee manager':
+      case 'Update an employee manager':
+        // Had to pass in callback function as argument for the viewEmployees function to work
         sqlQueries.updateEmployeeManager(connection, function() {
           sqlQueries.viewEmployees(connection, restartPrompt)
         });
         break;    
 
-      case 'Delete department':
+      case 'Delete a department':
+        // Had to pass in callback function as argument for the viewDepartments function to work
         sqlQueries.deleteDepartment(connection, function() {
           sqlQueries.viewDepartments(connection, restartPrompt)
         });
       break;
 
-      case 'Delete role':
+      case 'Delete a role':
+        // Had to pass in callback function as argument for the viewRoles function to work
         sqlQueries.deleteRole(connection, function() {
           sqlQueries.viewRoles(connection, restartPrompt)
         });
       break;
 
-      case 'Delete employee':
+      case 'Delete an employee':
+        // Had to pass in callback function as argument for the viewEmployees function to work
         sqlQueries.deleteEmployee(connection, function() {
           sqlQueries.viewEmployees(connection, restartPrompt)
         });
@@ -183,6 +180,7 @@ function selectOption(response) {
   }
 }
 
+// When index.js is run with node, call this function
 startConnection();
 
 

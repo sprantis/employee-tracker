@@ -1,3 +1,5 @@
+-- insert starter data to mutiple tables
+
 USE employee_tracker_db;
 
 INSERT INTO department (name)

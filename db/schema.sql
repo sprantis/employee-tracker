@@ -1,3 +1,4 @@
+-- Clear out any existing DB with the same name and create DB and tables fresh
 DROP DATABASE IF EXISTS employee_tracker_db;
 CREATE database employee_tracker_db;
 

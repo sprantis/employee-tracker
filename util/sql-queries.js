@@ -2,9 +2,13 @@
 
 // reference link for using module.exports: https://stackoverflow.com/questions/5797852/in-node-js-how-do-i-include-functions-from-my-other-files 
 
+// require packages
 const consoleTable = require('console.table');
 const inquirer = require('inquirer');
 
+// Exporting this code as a singular object with multiple functions within it
+// Each function has arguments for a connection variable and a callback function to execute
+// These functions execute unique query calls that are based on the inquirer prompt answers that come before them, if any
 module.exports = {
   viewDepartments: function(connection, cbFunction) {
     const query = `
@@ -43,8 +47,8 @@ module.exports = {
           employee.id AS employee_id,
           employee.first_name AS first_name,
           employee.last_name AS last_name,
-          department.name AS department,
           role.title AS title,
+          department.name AS department,
           role.salary AS salary,
           CONCAT(manager.first_name, ' ', manager.last_name) AS manager
       FROM employee 
@@ -75,8 +79,8 @@ module.exports = {
             employee.id AS employee_id,
             employee.first_name AS first_name,
             employee.last_name AS last_name,
-            department.name AS department,
             role.title AS title,
+            department.name AS department,
             CONCAT(manager.first_name, ' ', manager.last_name) AS manager
         FROM employee 
         JOIN department ON employee.department_id = department.id
@@ -88,6 +92,8 @@ module.exports = {
       connection.query(query, 
         [
           {
+            // use the character at the 0th index of the inquire response,
+            // which is a number that represents the manager_id (line 74)
             manager_id: response.manager.charAt(0)
           }
         ],
@@ -114,8 +120,8 @@ module.exports = {
             employee.id AS employee_id,
             employee.first_name AS first_name,
             employee.last_name AS last_name,
-            department.name AS department,
             role.title AS title,
+            department.name AS department,
             CONCAT(manager.first_name, ' ', manager.last_name) AS manager
         FROM employee 
         JOIN department ON employee.department_id = department.id
@@ -127,6 +133,8 @@ module.exports = {
       connection.query(query, 
         [
           {
+            // use the character at the 0th index of the inquire response,
+            // which is a number that represents the manager_id (line 154)
             department_id: response.department.charAt(0)
           }
         ],
@@ -163,6 +171,8 @@ module.exports = {
       connection.query(query, 
         [
           {
+            // use the character at the 0th index of the inquire response,
+            // which is a number that represents the manager_id (line 156)
             department_id: response.department.charAt(0)
           }
         ],
@@ -208,15 +218,18 @@ module.exports = {
       },
       {
         name: 'departmentId',
-        type: 'input',
+        type: 'list',
         message: 'Department ID: ',
+        choices: ['1: Legal', '2: Sales', '3: Marketing', '4: Engineering'],
       },
     ]).then(function (response){
       connection.query('INSERT INTO role SET ?', 
         { 
           title: response.title,
           salary: response.salary,
-          department_id: response.departmentId
+          // use the character at the 0th index of the inquire response,
+          // which is a number that represents the manager_id (line 223)
+          department_id: response.departmentId.charAt(0)
         }, 
         function(err) {
           if (err) throw err;
@@ -261,6 +274,8 @@ module.exports = {
         { 
           first_name: response.firstName,
           last_name: response.lastName,
+          // use the character at the 0th index of the inquire response,
+          // which is a number that represents the manager_id (lines 258, 264, 270)
           department_id: response.departmentId.charAt(0),
           role_id: response.roleId.charAt(0),
           manager_id: response.managerId.charAt(0)
@@ -283,6 +298,8 @@ module.exports = {
           type: 'list',
           message: 'Choose employee: ',
           choices: function() {
+            // for every result from the SELECT statement above,
+            // push the full name of each employee to the array then return it as the value of the "choices" key
             const employeeChoiceArray = [];
             for (let i = 0; i < data.length; i++) {
               let fullName = `${data[i].first_name} ${data[i].last_name}`
@@ -299,6 +316,7 @@ module.exports = {
         },
       ]).then(function (response){
 
+        // Function to return the id of whichever employee is selected from the choices available
         function selectedEmployeeId(){
           for (let i = 0; i < data.length; i++) {
             if(
@@ -312,6 +330,8 @@ module.exports = {
         connection.query('UPDATE employee SET ? WHERE ?', 
           [
             {
+              // use the character at the 0th index of the inquire response,
+              // which is a number that represents the manager_id (line 315)
               role_id: response.newRole.charAt(0)
             },
             {
@@ -334,6 +354,8 @@ module.exports = {
           name: 'employeeChoice',
           type: 'list',
           choices: function() {
+            // for every result from the SELECT statement above,
+            // push the full name of each employee to the array then return it as the value of the "choices" key
             const employeeChoiceArray = [];
             for (let i = 0; i < data.length; i++) {
               let fullName = `${data[i].first_name} ${data[i].last_name}`
@@ -351,6 +373,7 @@ module.exports = {
         },
       ]).then(function (response){
 
+        // Function to return the id of whichever employee is selected from the choices available
         function selectedEmployeeId(){
           for (let i = 0; i < data.length; i++) {
             if(
@@ -364,6 +387,8 @@ module.exports = {
         connection.query('UPDATE employee SET ? WHERE ?', 
           [
             {
+              // use the character at the 0th index of the inquire response,
+              // which is a number that represents the manager_id (line 372)
               manager_id: response.newManager.charAt(0)
             },
             {
@@ -393,6 +418,8 @@ module.exports = {
         connection.query('DELETE FROM department WHERE ?', 
           [
             {
+              // use the character at the 0th index of the inquire response,
+              // which is a number that represents the manager_id (line 413)
               id: response.department.charAt(0)
             }
           ], function(err) {
@@ -419,6 +446,8 @@ module.exports = {
         connection.query('DELETE FROM role WHERE ?', 
           [
             {
+              // use the character at the 0th index of the inquire response,
+              // which is a number that represents the manager_id (line 443)
               id: response.role.charAt(0)
             }
           ], function(err) {

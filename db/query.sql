@@ -31,8 +31,8 @@ SELECT
     employee.id AS employee_id,
     employee.first_name AS first_name,
     employee.last_name AS last_name,
-    department.name AS department,
     role.title AS title,
+    department.name AS department,
     role.salary AS salary,
     CONCAT(manager.first_name, ' ', manager.last_name) AS manager
 FROM employee 
@@ -47,8 +47,8 @@ SELECT
     employee.id AS employee_id,
     employee.first_name AS first_name,
     employee.last_name AS last_name,
-    department.name AS department,
     role.title AS title,
+    department.name AS department,
     role.salary AS salary,
     CONCAT(manager.first_name, ' ', manager.last_name) AS manager
 FROM employee 
@@ -63,8 +63,8 @@ SELECT
     employee.id AS employee_id,
     employee.first_name AS first_name,
     employee.last_name AS last_name,
-    department.name AS department,
     role.title AS title,
+    department.name AS department,
     role.salary AS salary,
     CONCAT(manager.first_name, ' ', manager.last_name) AS manager
 FROM employee 
@@ -81,6 +81,6 @@ SELECT
 FROM employee 
 JOIN role ON employee.role_id = role.id
 JOIN department ON employee.department_id = department.id
-WHERE employee.department_id = 3 --static value
+WHERE employee.department_id = 3 -- static value
 GROUP BY employee.department_id
 ;
